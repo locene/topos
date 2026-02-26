@@ -8,6 +8,7 @@ body {
     background-color: #fff;
     color: #006060;
     margin: 0;
+    height: 100vh;
 }
 
 a {
@@ -33,7 +34,7 @@ a {
         align-items: center;
         width: 100%;
         gap: 20px;
-        margin-top: 200px;
+        margin-top: 20vh;
         margin-bottom: 20px;
 
         .logo {
