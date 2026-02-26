@@ -1,0 +1,9 @@
+services:
+  locene-topos-backend:
+    image: locene/topos-backend:latest
+    container_name: locene-topos-backend
+    restart: always
+    ports:
+      - "127.0.0.1:6000:3000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

@@ -1,0 +1,7 @@
+services:
+  locene-topos-webapp:
+    image: locene/topos-webapp:latest
+    container_name: locene-topos-webapp
+    restart: always
+    ports:
+      - "127.0.0.1:6001:80"
