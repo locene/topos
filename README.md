@@ -18,6 +18,11 @@ A convenient [TROW](https://trow.cc) site search engine, powered by full-text se
 The backend is built with [Axum](https://github.com/tokio-rs/axum) and [Meilisearch](https://github.com/meilisearch/meilisearch), while the frontend utilizes [Yew](https://github.com/yewstack/yew).
 
 
+## To-Do
+
+- [ ] Implement [Change Data Capture](https://en.wikipedia.org/wiki/Change_data_capture) (CDC) mechanism to synchronize updated posts (pending TROW support)
+
+
 ## How to Build
 
 ### Prerequisites
@@ -48,12 +53,12 @@ Modify the ```.env.example``` file, renaming it to ```.env``` or ```.env.develop
 
 Here's an explanation of several key variables:
 
-| Name               | Description                                                                                                           |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| Name               | Description                                                                                                                 |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------- |
 | TROW_URL           | TROW API endpoint. See [documentation](https://trow.cc/wiki/trow/api/start) for the URL, usually ```https://api.trow.cc```. |
-| TROW_CLIENT_ID     | The Client ID for your TROW application. Obtain this by applying through TROW.                                        |
-| TROW_CLIENT_SECRET | The Client Secret for your TROW application. Obtain this by applying through TROW.                                    |
-| ADMIN_TOKEN        | Token required for accessing backend Admin APIs.                                                                      |
+| TROW_CLIENT_ID     | The Client ID for your TROW application. Obtain this by applying through TROW.                                              |
+| TROW_CLIENT_SECRET | The Client Secret for your TROW application. Obtain this by applying through TROW.                                          |
+| ADMIN_TOKEN        | Token required for accessing backend Admin APIs.                                                                            |
 
 After configuring the environment variables, run ```cargo run``` in the ```backend``` root directory.
 
