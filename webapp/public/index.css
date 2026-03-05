@@ -189,7 +189,10 @@ a {
                     line-height: 1.6;
                     color: #666;
                     word-break: break-word;
+                }
 
+                .result-title a,
+                .result-snippet {
                     & em {
                         font-style: normal;
                         background-color: #E0FFFF;
