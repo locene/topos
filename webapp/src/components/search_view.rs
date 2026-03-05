@@ -6,7 +6,7 @@ use chrono::{DateTime, Datelike, Local, NaiveDateTime, Utc};
 use gloo_net::http::Request;
 use gloo_timers::callback::Timeout;
 use wasm_bindgen_futures::spawn_local;
-use web_sys::{HtmlInputElement, KeyboardEvent, MouseEvent};
+use web_sys::{HtmlInputElement, KeyboardEvent, MouseEvent, Url, wasm_bindgen::JsValue};
 use yew::prelude::*;
 
 #[function_component(SearchView)]
@@ -46,10 +46,14 @@ pub fn search_view() -> Html {
             searched.set(false);
             current_page.set(1);
             loading.set(false);
+
+            if let Some(window) = web_sys::window() {
+                let _ = window.history().expect("history").replace_state_with_url(&JsValue::null(), "", Some("/"));
+            }
         })
     };
 
-    let on_search = {
+  let on_search = {
         let results = results.clone();
         let total_hits = total_hits.clone();
         let total_pages = total_pages.clone();
@@ -62,16 +66,7 @@ pub fn search_view() -> Html {
         let current_page = current_page.clone();
         let loading = loading.clone();
 
-        Callback::from(move |page_to_fetch: u32| {
-            let results = results.clone();
-            let total_hits = total_hits.clone();
-            let total_pages = total_pages.clone();
-            let query_str = query_str.clone();
-            let input_ref = input_ref.clone();
-            let searched = searched.clone();
-            let current_page = current_page.clone();
-            let loading = loading.clone();
-
+        Callback::from(move |mut page_to_fetch: u32| {
             let current_query_value = if let Some(input) = input_ref.cast::<HtmlInputElement>() {
                 input.value()
             } else {
@@ -80,57 +75,101 @@ pub fn search_view() -> Html {
 
             if current_query_value.trim().is_empty() {
                 current_placeholder.set("Please enter a search query".to_string());
-
                 placeholder_reset_timeout.set(None);
-
                 let current_placeholder_clone = current_placeholder.clone();
                 let original_placeholder_clone = original_placeholder.clone();
                 let timeout = Timeout::new(3000, move || {
                     current_placeholder_clone.set(original_placeholder_clone);
                 });
                 placeholder_reset_timeout.set(Some(timeout));
-
                 return;
             }
 
-            query_str.set(current_query_value.clone());
-            current_page.set(page_to_fetch);
-            searched.set(true);
+            if page_to_fetch < 1 { page_to_fetch = 1; }
+            if *total_pages > 0 && page_to_fetch > *total_pages {
+                page_to_fetch = *total_pages;
+            }
+
             loading.set(true);
+            searched.set(true);
+            query_str.set(current_query_value.clone());
+
+            let results = results.clone();
+            let total_hits = total_hits.clone();
+            let total_pages = total_pages.clone();
+            let loading = loading.clone();
+            let current_page = current_page.clone();
+            let q_for_async = current_query_value.clone();
 
             spawn_local(async move {
-                if let Some(input) = input_ref.cast::<HtmlInputElement>() {
-                    let query_value = input.value();
-
-                    let search_query = SearchRequest {
-                        q: query_value,
-                        page: page_to_fetch,
-                    };
-
-                    let response = Request::post(&format!("{}/search", ENV.backend_url))
-                        .json(&search_query)
-                        .expect("Failed to serialize request")
-                        .send()
-                        .await;
-
-                    match response {
-                        Ok(res) => {
-                            if let Ok(data) = res.json::<SearchResponse>().await {
-                                total_hits.set(data.total_hits);
-                                total_pages.set(data.total_pages);
-                                results.set(data.hits);
+                let update_url_bar = |query: &str, page: u32| {
+                    if let Some(window) = web_sys::window() {
+                        if let Ok(href) = window.location().href() {
+                            if let Ok(url) = Url::new(&href) {
+                                url.search_params().set("q", query);
+                                url.search_params().set("p", &page.to_string());
+                                let _ = window.history().expect("history").replace_state_with_url(&JsValue::null(), "", Some(&url.href()));
                             }
                         }
-                        Err(err) => {
-                            gloo_console::log!("Fetch error:", err.to_string());
-                        }
                     }
+                };
 
-                    loading.set(false);
+                let search_query = SearchRequest { q: q_for_async.clone(), page: page_to_fetch };
+                let response = Request::post(&format!("{}/search", ENV.backend_url))
+                    .json(&search_query).expect("fail").send().await;
+
+                if let Ok(res) = response {
+                    if let Ok(mut data) = res.json::<SearchResponse>().await {
+                        let mut final_page = page_to_fetch;
+
+                        if data.total_pages > 0 && page_to_fetch > data.total_pages {
+                            final_page = data.total_pages;
+                            let retry_query = SearchRequest { q: q_for_async.clone(), page: final_page };
+                            if let Ok(retry_res) = Request::post(&format!("{}/search", ENV.backend_url))
+                                .json(&retry_query).expect("fail").send().await {
+                                if let Ok(retry_data) = retry_res.json::<SearchResponse>().await {
+                                    data = retry_data;
+                                }
+                            }
+                        }
+
+                        update_url_bar(&q_for_async, final_page);
+                        current_page.set(final_page);
+                        total_hits.set(data.total_hits);
+                        total_pages.set(data.total_pages);
+                        results.set(data.hits);
+                    }
                 }
+                loading.set(false);
             });
         })
     };
+
+    {
+        let on_search = on_search.clone();
+        let input_ref = input_ref.clone();
+        use_effect_with((), move |_| {
+            if let Some(window) = web_sys::window() {
+                if let Ok(href) = window.location().href() {
+                    if let Ok(url) = Url::new(&href) {
+                        let q = url.search_params().get("q").unwrap_or_default();
+                        let p = url.search_params().get("p")
+                            .and_then(|v| v.parse::<u32>().ok())
+                            .unwrap_or(1)
+                            .max(1);
+
+                        if !q.trim().is_empty() {
+                            if let Some(input) = input_ref.cast::<HtmlInputElement>() {
+                                input.set_value(&q);
+                            }
+                            on_search.emit(p);
+                        }
+                    }
+                }
+            }
+            || {}
+        });
+    }
 
     let on_key_down = {
         let on_search = on_search.clone();
@@ -338,10 +377,10 @@ pub fn search_view() -> Html {
             <div class="footer">
                 <div class="description">
                     <div class="intro">
-                        <span>{ Html::from_html_unchecked("A convenient&nbsp;".into()) }</span>
+                        <span>{Html::from_html_unchecked("A convenient&nbsp;".into())}</span>
                         <a href="https://trow.cc" target="_blank">{"TROW"}</a>
-                        <span>{ Html::from_html_unchecked("&nbsp;site&nbsp;".into()) }</span>
-                        <a href="https://github.com/locene/topos" target="_blank">{"search engine"}</a>
+                        <span>{Html::from_html_unchecked("&nbsp;site search engine.&nbsp;".into())}</span>
+                        <a href="https://github.com/locene/topos" target="_blank">{"Star if helpful"}</a>
                         <span>{"."}</span>
                     </div>
                     <div class="copyright">{ format!("© {} Locene", current_year) }</div>
