@@ -48,6 +48,7 @@ pub fn search_view() -> Html {
             loading.set(false);
 
             if let Some(window) = web_sys::window() {
+                window.scroll_to_with_x_and_y(0.0, 0.0);
                 let _ = window.history().expect("history").replace_state_with_url(&JsValue::null(), "", Some("/"));
             }
         })
@@ -131,6 +132,10 @@ pub fn search_view() -> Html {
                                     data = retry_data;
                                 }
                             }
+                        }
+
+                        if let Some(window) = web_sys::window() {
+                            window.scroll_to_with_x_and_y(0.0, 0.0);
                         }
 
                         update_url_bar(&q_for_async, final_page);
