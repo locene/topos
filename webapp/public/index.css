@@ -269,6 +269,11 @@ a {
                 max-width: 800px;
                 width: 100%;
 
+                .intro {
+                    display: flex;
+                    align-items: center;
+                }
+
                 .copyright {
                     display: block;
                 }

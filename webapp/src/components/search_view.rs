@@ -385,8 +385,11 @@ pub fn search_view() -> Html {
                         <span>{Html::from_html_unchecked("A convenient&nbsp;".into())}</span>
                         <a href="https://trow.cc" target="_blank">{"TROW"}</a>
                         <span>{Html::from_html_unchecked("&nbsp;site search engine.&nbsp;".into())}</span>
-                        <a href="https://github.com/locene/topos" target="_blank">{"Star if helpful"}</a>
-                        <span>{"."}</span>
+                        <small>
+                            {"["}
+                            <a href="https://github.com/locene/topos" target="_blank">{"Star if helpful"}</a>
+                            {"]"}
+                        </small>
                     </div>
                     <div class="copyright">{ format!("© {} Locene", current_year) }</div>
                 </div>
