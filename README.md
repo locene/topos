@@ -15,7 +15,12 @@ A convenient [TROW](https://trow.cc) site search engine, powered by full-text se
 
 ## Tech Stack 
 
-The backend is built with [Axum](https://github.com/tokio-rs/axum) and [Meilisearch](https://github.com/meilisearch/meilisearch), while the frontend utilizes [Yew](https://github.com/yewstack/yew).
+| Layer      | Tech                                                                                                                                                                                                   |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Backend    | [TROW API](https://trow.cc/wiki/trow/api/start) · [Meilisearch](https://github.com/meilisearch/meilisearch) · [Axum](https://github.com/tokio-rs/axum) · [Valkey](https://github.com/valkey-io/valkey) |
+| Frontend   | [Yew](https://github.com/yewstack/yew)                                                                                                                                                                 |
+| CI / CD    | GitHub Actions                                                                                                                                                                                         |
+| Deployment | Docker · Debian (trixie-slim) · Nginx (alpine-slim)                                                                                                                                                    |
 
 
 ## To-Do
@@ -27,10 +32,11 @@ The backend is built with [Axum](https://github.com/tokio-rs/axum) and [Meilisea
 
 ### Prerequisites
 
-Git  
-Rust  
-[Meilisearch](https://github.com/meilisearch/meilisearch)  
-[Valkey](https://github.com/valkey-io/valkey) / Redis 
+| Name                                                      | Version | Description             |
+| --------------------------------------------------------- | ------- | ----------------------- |
+| Rust                                                      | 1.92.0+ | Programming Language    |
+| [Meilisearch](https://github.com/meilisearch/meilisearch) | Latest  | Full-Text Search Engine |
+| [Valkey](https://github.com/valkey-io/valkey)             | Latest  | Cache                   |
 
 ### Clone the Repository
 
