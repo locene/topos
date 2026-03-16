@@ -1,1 +1,1 @@
-pub mod search_view;
+pub mod home_page;

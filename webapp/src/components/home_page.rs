@@ -9,8 +9,8 @@ use wasm_bindgen_futures::spawn_local;
 use web_sys::{HtmlInputElement, KeyboardEvent, MouseEvent, Url, wasm_bindgen::JsValue};
 use yew::prelude::*;
 
-#[function_component(SearchView)]
-pub fn search_view() -> Html {
+#[function_component(HomePage)]
+pub fn home_page() -> Html {
     let input_ref = use_node_ref();
     let results = use_state(|| Vec::<Hit>::new());
     let total_hits = use_state(|| 0u32);
@@ -386,9 +386,9 @@ pub fn search_view() -> Html {
                         <a href="https://trow.cc" target="_blank">{"TROW"}</a>
                         <span>{Html::from_html_unchecked("&nbsp;site search engine.&nbsp;".into())}</span>
                         <small>
-                            {"["}
+                            {"("}
                             <a href="https://github.com/locene/topos" target="_blank">{"Star if helpful"}</a>
-                            {"]"}
+                            {")"}
                         </small>
                     </div>
                     <div class="copyright">{ format!("© {} Locene", current_year) }</div>

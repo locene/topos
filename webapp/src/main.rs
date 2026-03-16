@@ -11,6 +11,6 @@ fn main() {
 #[function_component(App)]
 fn app() -> Html {
     html! {
-        <components::search_view::SearchView />
+        <components::home_page::HomePage />
     }
 }
