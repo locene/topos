@@ -135,7 +135,7 @@ pub async fn process_documents() -> Result<()> {
 
     let topic_url = format!(
         "{}/board/topics?limit=1&pinned_working=0&orderby=start_date",
-        config.trow_url
+        config.trow_api_url
     );
 
     let mut max_topic_id = 0;
@@ -236,7 +236,7 @@ pub async fn process_documents() -> Result<()> {
 
                 let topic_url = format!(
                     "{}/board/topics/{}?limit={}&offset={}",
-                    config.trow_url, topic_num, posts_limit, posts_offset
+                    config.trow_api_url, topic_num, posts_limit, posts_offset
                 );
 
                 println!("Fetching topic: {}", topic_url);

@@ -7,7 +7,7 @@ use std::sync::OnceLock;
 #[derive(Debug)]
 pub struct AppConfig {
     pub log_level: String,
-    pub trow_url: String,
+    pub trow_api_url: String,
     pub trow_client_id: String,
     pub trow_client_secret: String,
     pub meilisearch_url: String,
@@ -41,7 +41,7 @@ impl AppConfig {
         let log_level =
             env::var("LOG_LEVEL").map_err(|_| "LOG_LEVEL environment variable not set")?;
 
-        let trow_url = env::var("TROW_URL").map_err(|_| "TROW_URL environment variable not set")?;
+        let trow_api_url = env::var("TROW_API_URL").map_err(|_| "TROW_API_URL environment variable not set")?;
         let trow_client_id = env::var("TROW_CLIENT_ID")
             .map_err(|_| "TROW_CLIENT_ID environment variable not set")?;
         let trow_client_secret = env::var("TROW_CLIENT_SECRET")
@@ -60,7 +60,7 @@ impl AppConfig {
 
         Ok(AppConfig {
             log_level,
-            trow_url,
+            trow_api_url,
             trow_client_id,
             trow_client_secret,
             meilisearch_url,
