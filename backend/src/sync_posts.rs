@@ -134,7 +134,7 @@ pub async fn process_documents() -> Result<()> {
     let meilisearch_client = build_meilisearch_client()?;
 
     let topic_url = format!(
-        "{}/board/topics?limit=1&pinned_working=0&orderby=start_date",
+        "{}/board/topics?limit=1&pinned_on_top=0&order_by=start_date",
         config.trow_api_url
     );
 
