@@ -17,7 +17,7 @@ A convenient [TROW](https://trow.cc) site search engine, powered by full-text se
 
 | Layer      | Tech                                                                                                                                                                                                   |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Backend    | [TROW API](https://trow.cc/wiki/trow/api/start) · [Meilisearch](https://github.com/meilisearch/meilisearch) · [Axum](https://github.com/tokio-rs/axum) · [Valkey](https://github.com/valkey-io/valkey) |
+| Backend    | [TROW API](https://api.trow.cc) · [Meilisearch](https://github.com/meilisearch/meilisearch) · [Axum](https://github.com/tokio-rs/axum) · [Valkey](https://github.com/valkey-io/valkey) |
 | Frontend   | [Yew](https://github.com/yewstack/yew)                                                                                                                                                                 |
 | CI / CD    | GitHub Actions                                                                                                                                                                                         |
 | Deployment | Docker · Debian (trixie-slim) · Nginx (alpine-slim)                                                                                                                                                    |
@@ -61,7 +61,7 @@ Here's an explanation of several key variables:
 
 | Name               | Description                                                                                                                 |
 | ------------------ | --------------------------------------------------------------------------------------------------------------------------- |
-| TROW_API_URL       | TROW API endpoint. See [documentation](https://trow.cc/wiki/trow/api/start) for the URL, usually ```https://api.trow.cc```. |
+| TROW_API_URL       | TROW API endpoint. See [documentation](https://api.trow.cc) for the URL, usually ```https://api.trow.cc```. |
 | TROW_CLIENT_ID     | The Client ID for your TROW application. Obtain this by applying through TROW.                                              |
 | TROW_CLIENT_SECRET | The Client Secret for your TROW application. Obtain this by applying through TROW.                                          |
 | ADMIN_TOKEN        | Token required for accessing backend Admin APIs.                                                                            |
