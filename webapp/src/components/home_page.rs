@@ -17,11 +17,13 @@ pub fn home_page() -> Html {
     let total_pages = use_state(|| 0u32);
     let query_str = use_state(|| String::new());
     let searched = use_state(|| false);
-    let original_placeholder = "Enter search query".to_string();
+    let original_placeholder = "Search...".to_string();
     let current_placeholder = use_state(|| original_placeholder.clone());
     let placeholder_reset_timeout = use_state(|| Option::<Timeout>::None);
     let current_page = use_state(|| 1u32);
     let loading = use_state(|| false);
+    let error = use_state(|| Option::<String>::None);
+    let request_serial = use_mut_ref(|| 0u32);
 
     let on_home_click = {
         let results = results.clone();
@@ -32,12 +34,21 @@ pub fn home_page() -> Html {
         let searched = searched.clone();
         let current_page = current_page.clone();
         let loading = loading.clone();
+        let error = error.clone();
+        let request_serial = request_serial.clone();
+        let current_placeholder = current_placeholder.clone();
+        let placeholder_reset_timeout = placeholder_reset_timeout.clone();
+        let original_placeholder = original_placeholder.clone();
 
         Callback::from(move |_| {
             results.set(vec![]);
             total_hits.set(0);
             total_pages.set(0);
             query_str.set(String::new());
+            error.set(None);
+            *request_serial.borrow_mut() += 1;
+            current_placeholder.set(original_placeholder.clone());
+            placeholder_reset_timeout.set(None);
 
             if let Some(input) = input_ref.cast::<HtmlInputElement>() {
                 input.set_value("");
@@ -66,6 +77,8 @@ pub fn home_page() -> Html {
         let original_placeholder = original_placeholder.clone();
         let current_page = current_page.clone();
         let loading = loading.clone();
+        let error = error.clone();
+        let request_serial = request_serial.clone();
 
         Callback::from(move |mut page_to_fetch: u32| {
             let current_query_value = if let Some(input) = input_ref.cast::<HtmlInputElement>() {
@@ -75,7 +88,7 @@ pub fn home_page() -> Html {
             };
 
             if current_query_value.trim().is_empty() {
-                current_placeholder.set("Please enter a search query".to_string());
+                current_placeholder.set("Type something to search".to_string());
                 placeholder_reset_timeout.set(None);
                 let current_placeholder_clone = current_placeholder.clone();
                 let original_placeholder_clone = original_placeholder.clone();
@@ -91,6 +104,13 @@ pub fn home_page() -> Html {
                 page_to_fetch = *total_pages;
             }
 
+            error.set(None);
+            let serial = {
+                let mut s = request_serial.borrow_mut();
+                *s += 1;
+                *s
+            };
+
             loading.set(true);
             searched.set(true);
             query_str.set(current_query_value.clone());
@@ -101,6 +121,8 @@ pub fn home_page() -> Html {
             let loading = loading.clone();
             let current_page = current_page.clone();
             let q_for_async = current_query_value.clone();
+            let error = error.clone();
+            let request_serial = request_serial.clone();
 
             spawn_local(async move {
                 let update_url_bar = |query: &str, page: u32| {
@@ -119,31 +141,57 @@ pub fn home_page() -> Html {
                 let response = Request::post(&format!("{}/search", ENV.backend_url))
                     .json(&search_query).expect("fail").send().await;
 
-                if let Ok(res) = response {
-                    if let Ok(mut data) = res.json::<SearchResponse>().await {
-                        let mut final_page = page_to_fetch;
+                if *request_serial.borrow() != serial {
+                    loading.set(false);
+                    return;
+                }
 
-                        if data.total_pages > 0 && page_to_fetch > data.total_pages {
-                            final_page = data.total_pages;
-                            let retry_query = SearchRequest { q: q_for_async.clone(), page: final_page };
-                            if let Ok(retry_res) = Request::post(&format!("{}/search", ENV.backend_url))
-                                .json(&retry_query).expect("fail").send().await {
-                                if let Ok(retry_data) = retry_res.json::<SearchResponse>().await {
-                                    data = retry_data;
+                if let Ok(res) = response {
+                    if res.ok() {
+                        if let Ok(mut data) = res.json::<SearchResponse>().await {
+                            let mut final_page = page_to_fetch;
+
+                            if data.total_pages > 0 && page_to_fetch > data.total_pages {
+                                final_page = data.total_pages;
+                                let retry_query = SearchRequest { q: q_for_async.clone(), page: final_page };
+                                if let Ok(retry_res) = Request::post(&format!("{}/search", ENV.backend_url))
+                                    .json(&retry_query).expect("fail").send().await {
+                                    if *request_serial.borrow() != serial {
+                                        loading.set(false);
+                                        return;
+                                    }
+                                    if let Ok(retry_data) = retry_res.json::<SearchResponse>().await {
+                                        data = retry_data;
+                                    }
                                 }
                             }
-                        }
 
-                        if let Some(window) = web_sys::window() {
-                            window.scroll_to_with_x_and_y(0.0, 0.0);
-                        }
+                            if let Some(window) = web_sys::window() {
+                                window.scroll_to_with_x_and_y(0.0, 0.0);
+                            }
 
-                        update_url_bar(&q_for_async, final_page);
-                        current_page.set(final_page);
-                        total_hits.set(data.total_hits);
-                        total_pages.set(data.total_pages);
-                        results.set(data.hits);
+                            update_url_bar(&q_for_async, final_page);
+                            current_page.set(final_page);
+                            total_hits.set(data.total_hits);
+                            total_pages.set(data.total_pages);
+                            results.set(data.hits);
+                        } else {
+                            results.set(vec![]);
+                            total_hits.set(0);
+                            total_pages.set(0);
+                            error.set(Some("Got an unexpected response. Try again.".to_string()));
+                        }
+                    } else {
+                        results.set(vec![]);
+                        total_hits.set(0);
+                        total_pages.set(0);
+                        error.set(Some("Search failed. Try again.".to_string()));
                     }
+                } else {
+                    results.set(vec![]);
+                    total_hits.set(0);
+                    total_pages.set(0);
+                    error.set(Some("Can't connect. Check your connection.".to_string()));
                 }
                 loading.set(false);
             });
@@ -252,12 +300,30 @@ pub fn home_page() -> Html {
     let has_prev = *current_page > 1;
     let has_next = *current_page < *total_pages;
 
+    let results_label = if *total_hits == 1 {
+        "Found 1 result".to_string()
+    } else {
+        format!("Found {} results", display_hits_str)
+    };
+
     let current_year = chrono::Local::now().year();
+
+    let status_msg = if *loading {
+        "Searching...".to_string()
+    } else if *searched {
+        if *total_hits > 0 {
+            results_label.clone()
+        } else {
+            "No results".to_string()
+        }
+    } else {
+        String::new()
+    };
 
     html! {
         <div class={classes!("container", extra_class)}>
-            <div class="search-form">
-                <div class="logo" onclick={on_home_click}>{"TOPOS"}</div>
+            <header class="search-form">
+                <button type="button" class="logo" onclick={on_home_click}>{"TOPOS"}</button>
                 <div class="search-bar">
                     <input
                         ref={input_ref}
@@ -265,6 +331,7 @@ pub fn home_page() -> Html {
                         placeholder={(*current_placeholder).clone()}
                         id="search-input"
                         class="search-input"
+                        aria-label="Search TROW"
                         onkeydown={on_key_down}
                         oninput={on_input_change}
                         disabled={*loading}
@@ -272,10 +339,15 @@ pub fn home_page() -> Html {
                     <button onclick={on_search.reform(|_event: MouseEvent| 1)} class="search-button" disabled={*loading}>{"SEARCH"}</button>
                 </div>
                 <div class="placeholder"></div>
-            </div>
+            </header>
 
-            <div class="main-content">
+            <div class="sr-only" aria-live="polite" aria-atomic="true" role="status">{ status_msg }</div>
+
+            <main class="main-content">
                 <div class="results-list">
+                    if let Some(err_msg) = (*error).clone() {
+                        <div class="error-message" role="alert">{ err_msg }</div>
+                    }
                     if *loading {
                         <div class="loading-spinner">
                             <div></div>
@@ -283,14 +355,14 @@ pub fn home_page() -> Html {
                     } else if *searched {
                         if *total_hits > 0 {
                             <div class="search-info">
-                                <div class="total-hits">{ format!("Found {} results", display_hits_str) }</div>
+                                <div class="total-hits">{ results_label.clone() }</div>
 
                                 if *total_pages > 1 {
-                                    <div class="pagination">
-                                        <div class="page-button" onclick={on_prev_page.clone()} disabled={!has_prev}>{"«"}</div>
+                                    <nav aria-label="Search results pagination" class="pagination">
+                                        <button type="button" class="page-button" aria-label="Previous page" onclick={on_prev_page.clone()} disabled={!has_prev}>{"«"}</button>
                                         <div class="page-num">{ format!("{} / {}", *current_page, *total_pages) }</div>
-                                        <div class="page-button" onclick={on_next_page.clone()} disabled={!has_next}>{"»"}</div>
-                                    </div>
+                                        <button type="button" class="page-button" aria-label="Next page" onclick={on_next_page.clone()} disabled={!has_next}>{"»"}</button>
+                                    </nav>
                                 }
                             </div>
 
@@ -317,7 +389,7 @@ pub fn home_page() -> Html {
                                     let title_html = {
                                         html! {
                                             <div class="result-title">
-                                                <a href={format!("https://trow.cc/board/showtopic={}&view=findpost&p={}", f.tid, f.pid)} target="_blank">
+                                                <a href={format!("https://trow.cc/board/showtopic={}&view=findpost&p={}", f.tid, f.pid)} target="_blank" rel="noopener noreferrer">
                                                     { Html::from_html_unchecked(f.title.clone().into()) }
                                                 </a>
                                             </div>
@@ -332,7 +404,7 @@ pub fn home_page() -> Html {
                                         }
                                     };
 
-                                   let author_name_html = {
+                                    let author_name_html = {
                                         html! {
                                             <span class="author">
                                                 <a href={format!("https://trow.cc/board/showuser={}", f.author.id)}>
@@ -357,14 +429,14 @@ pub fn home_page() -> Html {
                             }
 
                             <div class="search-info">
-                                <div class="total-hits">{ format!("Found {} results", display_hits_str) }</div>
+                                <div class="total-hits">{ results_label.clone() }</div>
 
                                 if *total_pages > 1 {
-                                    <div class="pagination">
-                                        <div class="page-button" onclick={on_prev_page.clone()} disabled={!has_prev}>{"«"}</div>
+                                    <nav aria-label="Search results pagination" class="pagination">
+                                        <button type="button" class="page-button" aria-label="Previous page" onclick={on_prev_page.clone()} disabled={!has_prev}>{"«"}</button>
                                         <div class="page-num">{ format!("{} / {}", *current_page, *total_pages) }</div>
-                                        <div class="page-button" onclick={on_next_page.clone()} disabled={!has_next}>{"»"}</div>
-                                    </div>
+                                        <button type="button" class="page-button" aria-label="Next page" onclick={on_next_page.clone()} disabled={!has_next}>{"»"}</button>
+                                    </nav>
                                 }
                             </div>
 
@@ -372,28 +444,25 @@ pub fn home_page() -> Html {
 
                         } else {
                             <div class="search-info">
-                                <div class="total-hits">{"No results found"}</div>
+                                <div class="total-hits">{"No results"}</div>
                             </div>
                         }
                     }
                 </div>
-            </div>
+            </main>
 
-            <div class="footer">
+            <footer class="footer">
                 <div class="description">
                     <div class="intro">
-                        <span>{Html::from_html_unchecked("A convenient&nbsp;".into())}</span>
-                        <a href="https://trow.cc" target="_blank">{"TROW"}</a>
-                        <span>{Html::from_html_unchecked("&nbsp;site search engine.&nbsp;".into())}</span>
-                        <small>
-                            {"("}
-                            <a href="https://github.com/locene/topos" target="_blank">{"Star if helpful"}</a>
-                            {")"}
-                        </small>
+                        {Html::from_html_unchecked("Full-text search for&nbsp;".into())}
+                        <a href="https://trow.cc" target="_blank" rel="noopener noreferrer">{"TROW"}</a>
+                        <span class="sep">{Html::from_html_unchecked("&nbsp;·&nbsp;".into())}</span>
+                        {Html::from_html_unchecked("Star on&nbsp;".into())}
+                        <a href="https://github.com/locene/topos" target="_blank" rel="noopener noreferrer">{"GitHub"}</a>
                     </div>
                     <div class="copyright">{ format!("© {} Locene", current_year) }</div>
                 </div>
-            </div>
+            </footer>
         </div>
     }
 }
