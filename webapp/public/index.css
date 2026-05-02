@@ -116,6 +116,14 @@ a {
                 outline: var(--focus-ring);
                 outline-offset: 4px;
             }
+
+            .logo-icon {
+                height: 1cap;
+                width: auto;
+                vertical-align: baseline;
+                margin-right: 0.08em;
+                display: inline;
+            }
         }
 
         .search-bar {
