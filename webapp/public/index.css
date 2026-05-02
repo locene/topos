@@ -15,6 +15,7 @@
     --color-tokusa-ink:       oklch(21% 0.07 148);
 
     --color-byakuroku:            oklch(99.5% 0.001 148);
+    --color-byakuroku-surface:    oklch(98%   0.001 148);
     --color-byakuroku-subtle:     oklch(95%   0.002 148);
     --color-byakuroku-border:     oklch(91%   0.007 148);
     --color-byakuroku-ink:        oklch(27%   0.016 148);
@@ -417,7 +418,7 @@ a {
         }
 
         .footer {
-            background: var(--color-byakuroku-subtle);
+            background: var(--color-byakuroku-surface);
             border-top: 1px solid var(--color-byakuroku-border);
             width: 100%;
             padding: var(--space-5);
@@ -483,8 +484,9 @@ a {
 
 .error-message {
     padding: var(--space-4) var(--space-5);
-    color: var(--color-tokusa-ink);
-    background-color: var(--color-tokusa-highlight);
+    color: var(--color-byakuroku-ink);
+    background-color: var(--color-byakuroku-surface);
+    border: 1px solid var(--color-byakuroku-border);
     font-size: var(--font-size-base);
     margin-bottom: var(--space-5);
 }
