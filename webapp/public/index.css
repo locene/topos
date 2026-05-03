@@ -103,6 +103,7 @@ a {
             letter-spacing: 0.08em;
             font-optical-sizing: auto;
             transition: opacity 0.15s ease-out, transform 0.15s ease-out;
+            white-space: nowrap;
 
             &:hover {
                 opacity: 0.9;
@@ -177,6 +178,7 @@ a {
                 padding: 8px 4px 8px 6px;
                 background-color: transparent;
                 color: var(--color-tokusa);
+                background-color: var(--color-byakuroku);
                 border: 0;
                 cursor: pointer;
                 font-size: var(--font-size-base);
@@ -189,7 +191,8 @@ a {
                 }
 
                 &:active:not(:disabled) {
-                    transform: translateY(1px);
+                    transform: scale(0.96);
+                    transition-duration: 0.06s;
                 }
 
                 &:focus-visible {
@@ -220,7 +223,7 @@ a {
 
     .main-content {
         width: 100%;
-        max-width: 800px;
+        max-width: 740px;
         display: flex;
         flex-grow: 1;
 
@@ -265,8 +268,9 @@ a {
 
                     .page-button {
                         font-size: var(--font-size-sm);
+                        line-height: 1;
                         cursor: pointer;
-                        padding: 0 5px 1px 5px;
+                        padding: 1px 5px;
                         color: var(--color-tokusa);
                         background: none;
                         border: none;
@@ -279,7 +283,8 @@ a {
                         }
 
                         &:active:not(:disabled) {
-                            transform: translateY(1px);
+                            transform: scale(0.96);
+                            transition-duration: 0.06s;
                         }
 
                         &:disabled {
@@ -383,7 +388,7 @@ a {
             }
 
             .search-bar {
-                max-width: 800px;
+                max-width: 740px;
 
                 .search-input {
                     background-color: transparent;
@@ -391,6 +396,7 @@ a {
 
                 .search-button {
                     color: var(--color-tokusa-deep);
+                    background-color: var(--color-tokusa-surface);
                 }
             }
 
@@ -427,7 +433,7 @@ a {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                max-width: 800px;
+                max-width: 740px;
                 width: 100%;
 
                 .intro {
