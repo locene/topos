@@ -9,6 +9,26 @@ use wasm_bindgen_futures::spawn_local;
 use web_sys::{HtmlInputElement, KeyboardEvent, MouseEvent, Url, wasm_bindgen::JsValue};
 use yew::prelude::*;
 
+fn page_prev_icon() -> Html {
+    html! {
+        <svg width="1em" height="1em" viewBox="0 0 16 16" fill="none"
+             stroke="currentColor" stroke-width="1"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 5L8 8L12 11 M8 5L4 8L8 11"/>
+        </svg>
+    }
+}
+
+fn page_next_icon() -> Html {
+    html! {
+        <svg width="1em" height="1em" viewBox="0 0 16 16" fill="none"
+             stroke="currentColor" stroke-width="1"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 5L8 8L4 11 M8 5L12 8L8 11"/>
+        </svg>
+    }
+}
+
 #[function_component(HomePage)]
 pub fn home_page() -> Html {
     let input_ref = use_node_ref();
@@ -363,9 +383,13 @@ pub fn home_page() -> Html {
 
                                 if *total_pages > 1 {
                                     <nav aria-label="Search results pagination" class="pagination">
-                                        <button type="button" class="page-button" aria-label="Previous page" onclick={on_prev_page.clone()} disabled={!has_prev}>{"«"}</button>
+                                        <button type="button" class="page-button" aria-label="Previous page" onclick={on_prev_page.clone()} disabled={!has_prev}>
+                                            { page_prev_icon() }
+                                        </button>
                                         <div class="page-num">{ format!("{} / {}", *current_page, *total_pages) }</div>
-                                        <button type="button" class="page-button" aria-label="Next page" onclick={on_next_page.clone()} disabled={!has_next}>{"»"}</button>
+                                        <button type="button" class="page-button" aria-label="Next page" onclick={on_next_page.clone()} disabled={!has_next}>
+                                            { page_next_icon() }
+                                        </button>
                                     </nav>
                                 }
                             </div>
@@ -437,9 +461,13 @@ pub fn home_page() -> Html {
 
                                 if *total_pages > 1 {
                                     <nav aria-label="Search results pagination" class="pagination">
-                                        <button type="button" class="page-button" aria-label="Previous page" onclick={on_prev_page.clone()} disabled={!has_prev}>{"«"}</button>
+                                        <button type="button" class="page-button" aria-label="Previous page" onclick={on_prev_page.clone()} disabled={!has_prev}>
+                                            { page_prev_icon() }
+                                        </button>
                                         <div class="page-num">{ format!("{} / {}", *current_page, *total_pages) }</div>
-                                        <button type="button" class="page-button" aria-label="Next page" onclick={on_next_page.clone()} disabled={!has_next}>{"»"}</button>
+                                        <button type="button" class="page-button" aria-label="Next page" onclick={on_next_page.clone()} disabled={!has_next}>
+                                            { page_next_icon() }
+                                        </button>
                                     </nav>
                                 }
                             </div>

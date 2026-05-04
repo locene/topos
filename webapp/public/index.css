@@ -26,8 +26,9 @@
     --font-size-base:  0.875rem;
     --font-size-sm:    0.8125rem;
 
-    --space-1:  4px;
-    --space-2:  8px;
+    --space-1:    4px;
+    --space-1-5:  6px;
+    --space-2:    8px;
     --space-3:  12px;
     --space-4:  16px;
     --space-5:  20px;
@@ -176,7 +177,6 @@ a {
                 position: absolute;
                 right: 0;
                 padding: 8px 4px 8px 6px;
-                background-color: transparent;
                 color: var(--color-tokusa);
                 background-color: var(--color-byakuroku);
                 border: 0;
@@ -267,30 +267,34 @@ a {
                     align-items: center;
 
                     .page-button {
+                        display: inline-flex;
+                        align-items: center;
                         font-size: var(--font-size-sm);
-                        line-height: 1;
                         cursor: pointer;
-                        padding: 1px 5px;
+                        padding: 2px 5px;
                         color: var(--color-tokusa);
                         background: none;
                         border: none;
-                        font-family: inherit;
                         appearance: none;
                         transition: color 0.15s ease-out, transform 0.1s ease-out;
+
+                        & svg {
+                            width: 0.875em;
+                            height: 0.875em;
+                        }
 
                         &:hover:not(:disabled) {
                             color: var(--color-tokusa-mid);
                         }
 
                         &:active:not(:disabled) {
-                            transform: scale(0.96);
+                            transform: scale(0.85);
                             transition-duration: 0.06s;
                         }
 
                         &:disabled {
-                            background: transparent;
                             cursor: not-allowed;
-                            opacity: 0.3;
+                            opacity: 0.4;
                         }
 
                         &:focus-visible {
@@ -300,9 +304,12 @@ a {
                     }
 
                     .page-num {
-                        margin: 0 var(--space-2);
+                        margin: 0 var(--space-1-5);
                         font-size: var(--font-size-sm);
                         color: var(--color-byakuroku-ink-muted);
+                        line-height: 1;
+                        text-box-trim: trim-both;
+                        text-box-edge: cap alphabetic;
                     }
                 }
             }
@@ -389,10 +396,6 @@ a {
 
             .search-bar {
                 max-width: 740px;
-
-                .search-input {
-                    background-color: transparent;
-                }
 
                 .search-button {
                     color: var(--color-tokusa-deep);
