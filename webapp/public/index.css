@@ -33,7 +33,7 @@
     --space-4:  16px;
     --space-5:  20px;
     --space-8:  32px;
-    --space-10: 40px;
+
     --space-12: 48px;
 
     --focus-ring: 2px solid var(--color-tokusa-mid);
@@ -124,7 +124,8 @@ a {
                 height: 1cap;
                 width: auto;
                 vertical-align: baseline;
-                margin-right: 0.08em;
+                margin-left: 0.021em;
+                margin-right: 0.116em;
                 display: inline;
             }
         }
@@ -176,7 +177,7 @@ a {
             .search-button {
                 position: absolute;
                 right: 0;
-                padding: 8px 4px 8px 6px;
+                padding: var(--space-2) var(--space-1) var(--space-2) var(--space-1-5);
                 color: var(--color-tokusa);
                 background-color: var(--color-byakuroku);
                 border: 0;
@@ -209,6 +210,18 @@ a {
         }
     }
 
+    .sep {
+        display: inline-flex;
+        align-items: center;
+        margin-inline: 0.45em;
+
+        svg {
+            display: block;
+            width: 0.28em;
+            height: 0.28em;
+        }
+    }
+
     .footer {
         color: var(--color-byakuroku-ink-mid);
         font-size: var(--font-size-sm);
@@ -218,6 +231,18 @@ a {
 
         .copyright {
             display: none;
+        }
+
+        .intro {
+            display: flex;
+            align-items: center;
+
+            > a,
+            > span:not(.sep) {
+                line-height: 1;
+                text-box-trim: trim-both;
+                text-box-edge: cap alphabetic;
+            }
         }
     }
 
@@ -304,7 +329,7 @@ a {
                     }
 
                     .page-num {
-                        margin: 0 var(--space-1-5);
+                        margin-inline: var(--space-1-5);
                         font-size: var(--font-size-sm);
                         color: var(--color-byakuroku-ink-muted);
                         line-height: 1;
@@ -336,7 +361,7 @@ a {
                 }
 
                 .result-snippet {
-                    margin: 0 0 var(--space-3) 0;
+                    margin-bottom: var(--space-3);
                     font-size: var(--font-size-base);
                     line-height: 1.6;
                     color: var(--color-byakuroku-ink-muted);
@@ -356,6 +381,16 @@ a {
                 .result-meta {
                     font-size: var(--font-size-sm);
                     color: var(--color-byakuroku-ink-mid);
+                    display: flex;
+                    align-items: center;
+
+                    .author,
+                    .date {
+                        line-height: 1;
+                        text-box-trim: trim-both;
+                        text-box-edge: cap alphabetic;
+                    }
+
                 }
             }
 
@@ -438,11 +473,6 @@ a {
                 align-items: center;
                 max-width: 740px;
                 width: 100%;
-
-                .intro {
-                    display: flex;
-                    align-items: center;
-                }
 
                 .copyright {
                     display: block;

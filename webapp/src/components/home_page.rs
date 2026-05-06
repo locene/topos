@@ -29,6 +29,14 @@ fn page_next_icon() -> Html {
     }
 }
 
+fn sep_icon() -> Html {
+    html! {
+        <svg width="4" height="4" viewBox="0 0 8 8" fill="currentColor" aria-hidden="true">
+            <circle cx="4" cy="4" r="2.5"/>
+        </svg>
+    }
+}
+
 #[function_component(HomePage)]
 pub fn home_page() -> Html {
     let input_ref = use_node_ref();
@@ -448,7 +456,9 @@ pub fn home_page() -> Html {
                                             { content_html }
                                             <div class="result-meta">
                                                 { author_name_html }
-                                                <span class="sep">{" • "}</span>
+                                                <span class="sep" aria-hidden="true">
+                                                    { sep_icon() }
+                                                </span>
                                                 <span class="date">{ local_post_date }</span>
                                             </div>
                                         </div>
@@ -486,10 +496,10 @@ pub fn home_page() -> Html {
             <footer class="footer">
                 <div class="description">
                     <div class="intro">
-                        {Html::from_html_unchecked("Full-text search for&nbsp;".into())}
+                        <span>{"Full-text search for\u{a0}"}</span>
                         <a href="https://trow.cc" target="_blank" rel="noopener noreferrer">{"TROW"}</a>
-                        <span class="sep">{Html::from_html_unchecked("&nbsp;·&nbsp;".into())}</span>
-                        {Html::from_html_unchecked("Star on&nbsp;".into())}
+                        <span class="sep" aria-hidden="true">{ sep_icon() }</span>
+                        <span>{"Star on\u{a0}"}</span>
                         <a href="https://github.com/locene/topos" target="_blank" rel="noopener noreferrer">{"GitHub"}</a>
                     </div>
                     <div class="copyright">{ format!("© {} Locene", current_year) }</div>
