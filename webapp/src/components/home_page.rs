@@ -80,6 +80,7 @@ pub fn home_page() -> Html {
 
             if let Some(input) = input_ref.cast::<HtmlInputElement>() {
                 input.set_value("");
+                let _ = input.focus();
             }
 
             searched.set(false);
@@ -244,6 +245,8 @@ pub fn home_page() -> Html {
                                 input.set_value(&q);
                             }
                             on_search.emit(p);
+                        } else if let Some(input) = input_ref.cast::<HtmlInputElement>() {
+                            let _ = input.focus();
                         }
                     }
                 }
@@ -351,11 +354,13 @@ pub fn home_page() -> Html {
     html! {
         <div class={classes!("container", extra_class)}>
             <header class="search-form">
-                <button type="button" class="logo" aria-label="TOPOS" onclick={on_home_click}>
-                    {"T"}
-                    <img src="favicons/favicon-96x96.png" alt="" aria-hidden="true" class="logo-icon" />
-                    {"POS"}
-                </button>
+                <div class="logo-wrapper">
+                    <button type="button" class="logo" aria-label="TOPOS" onclick={on_home_click}>
+                        {"T"}
+                        <img src="favicons/favicon-96x96.png" alt="" aria-hidden="true" class="logo-icon" />
+                        {"POS"}
+                    </button>
+                </div>
                 <div class="search-bar">
                     <input
                         ref={input_ref}

@@ -33,7 +33,7 @@
     --space-4:  16px;
     --space-5:  20px;
     --space-8:  32px;
-
+    --space-10: 40px;
     --space-12: 48px;
 
     --focus-ring: 2px solid var(--color-tokusa-mid);
@@ -89,7 +89,13 @@ a {
         width: 100%;
         gap: var(--space-12);
         margin-top: 20vh;
-        margin-bottom: var(--space-5);
+        margin-bottom: var(--space-10);
+
+        .logo-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
         .logo {
             font-family: Geologica, sans-serif;
@@ -105,6 +111,7 @@ a {
             font-optical-sizing: auto;
             transition: opacity 0.15s ease-out, transform 0.15s ease-out;
             white-space: nowrap;
+            flex-shrink: 0;
 
             &:hover {
                 opacity: 0.9;
@@ -122,11 +129,13 @@ a {
 
             .logo-icon {
                 height: 1cap;
-                width: auto;
+                height: round(nearest, 1cap, calc(1px / var(--dpr, 1)));
+                width: 1cap;
+                width: round(nearest, 1cap, calc(1px / var(--dpr, 1)));
                 vertical-align: baseline;
                 margin-left: 0.021em;
                 margin-right: 0.116em;
-                display: inline;
+                display: inline-block;
             }
         }
 
@@ -420,12 +429,15 @@ a {
             padding: var(--space-8) var(--space-5);
             gap: var(--space-5);
 
-            .logo {
-                font-size: 1.5rem;
+            .logo-wrapper {
                 flex-grow: 1;
                 flex-basis: 0;
                 min-width: 0;
-                text-align: right;
+                justify-content: flex-end;
+            }
+
+            .logo {
+                font-size: 1.5rem;
                 transform-origin: right center;
             }
 
@@ -450,8 +462,13 @@ a {
                 flex-direction: column;
                 padding: var(--space-5);
 
+                .logo-wrapper {
+                    flex-grow: 0;
+                    flex-basis: auto;
+                    justify-content: center;
+                }
+
                 .logo {
-                    text-align: center;
                     transform-origin: center;
                 }
 
