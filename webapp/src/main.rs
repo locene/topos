@@ -1,6 +1,8 @@
 use yew::prelude::*;
 
-mod components;
+mod components {
+    pub mod home_page;
+}
 mod config;
 mod models;
 

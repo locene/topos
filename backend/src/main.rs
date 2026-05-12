@@ -18,7 +18,11 @@ use tracing::{Level, info};
 
 mod config;
 mod sync_posts;
-mod utils;
+mod utils {
+    pub mod resume_point;
+    pub mod skip_topics;
+    pub mod text_cleaner;
+}
 
 #[derive(Deserialize)]
 struct ClientRequest {
